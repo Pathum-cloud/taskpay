@@ -3,231 +3,551 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TaskPay Admin</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskPay Admin Panel</title>
+  <meta name="robots" content="noindex,nofollow">
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
-      padding: 20px;
-      display: grid;
-      place-items: center;
-      background: #101827;
-      color: #f8fafc;
+      padding: 18px;
+      background: #f1f5f9;
+      color: #172033;
       font-family: Arial, sans-serif;
     }
 
-    .panel {
-      width: 100%;
-      max-width: 420px;
-      padding: 28px;
-      background: #1e293b;
-      border-radius: 18px;
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
     }
 
-    h1 { color: #34d399; margin-top: 0; }
+    h1 { margin-bottom: 6px; }
+    h2 { font-size: 19px; }
 
-    input, button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border-radius: 9px;
-      font-size: 16px;
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 4px 18px #0000000b;
     }
 
-    input {
-      color: white;
-      background: #0f172a;
-      border: 1px solid #475569;
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    input, textarea {
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: #172033;
+    }
+
+    textarea {
+      min-height: 85px;
+      resize: vertical;
     }
 
     button {
       border: 0;
-      background: #10b981;
-      color: #052e25;
+      color: white;
+      background: #2563eb;
       font-weight: bold;
       cursor: pointer;
     }
 
-    button:disabled { opacity: .5; }
-    #status { overflow-wrap: anywhere; line-height: 1.5; }
-    .hidden { display: none !important; }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .secondary { background: #475569; }
+    .danger { background: #dc2626; }
+    .success { background: #15803d; }
+
+    .task {
+      border: 1px solid #e2e8f0;
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .task p { line-height: 1.5; }
+    .muted { color: #64748b; font-size: 14px; }
+    .hidden { display: none; }
+    .status { font-weight: bold; margin-top: 12px; }
+    .active { color: #15803d; }
+    .inactive { color: #b45309; }
+
+    a { color: #2563eb; }
+
+    .small-button {
+      width: auto;
+      margin-right: 5px;
+      padding: 10px 14px;
+    }
+
+    #message {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
   </style>
 </head>
 
 <body>
-  <main class="panel">
-    <h1>TaskPay Admin</h1>
-    <p>Secure administrator login</p>
+<div class="container">
+  <h1>TaskPay Admin</h1>
+  <p class="muted">Secure task management dashboard</p>
 
+  <div id="loginCard" class="card">
+    <h2>Admin Login</h2>
     <form id="loginForm">
-      <input id="email" type="email"
+      <input
+        id="email"
+        type="email"
         placeholder="Admin email"
-        required autocomplete="username">
-
-      <input id="password" type="password"
+        autocomplete="username"
+        required
+      >
+      <input
+        id="password"
+        type="password"
         placeholder="Password"
-        required autocomplete="current-password">
-
-      <button id="loginBtn" type="submit">Login</button>
+        autocomplete="current-password"
+        required
+      >
+      <button id="loginButton" type="submit">Login</button>
     </form>
+    <p class="muted">
+      Only the authorized TaskPay administrator can manage tasks.
+    </p>
+  </div>
 
-    <section id="dashboard" class="hidden">
+  <div id="dashboard" class="hidden">
+    <div class="card">
       <h2>Admin Access Verified</h2>
-      <p>You are signed in as an authorized administrator.</p>
-      <p>Task management will be added next.</p>
-      <button id="logoutBtn" type="button">Logout</button>
-    </section>
+      <p id="adminEmail" class="muted"></p>
+      <button id="logoutButton" class="secondary">Logout</button>
+    </div>
 
-    <p id="status" role="status">Connecting to secure login...</p>
-  </main>
+    <div class="card">
+      <h2 id="formHeading">Add New Task</h2>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <form id="taskForm">
+        <input id="taskTitle" maxlength="120"
+          placeholder="Task title" required>
 
-  <script>
-    // Your TaskPay Supabase project settings
-    const SUPABASE_URL =
-      "https://ywkgamyqgvcdavgodrio.supabase.co";
+        <textarea id="taskDescription"
+          placeholder="Task description (optional)"></textarea>
 
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx";
+        <input id="taskUrl" type="url"
+          placeholder="Task URL (https://...)" required>
 
-    const statusEl = document.getElementById("status");
-    const form = document.getElementById("loginForm");
-    const loginBtn = document.getElementById("loginBtn");
-    const dashboard = document.getElementById("dashboard");
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
+        <label for="taskReward">Reward amount ($)</label>
+        <input id="taskReward" type="number"
+          min="0" step="0.01" placeholder="Example: 0.50" required>
 
-    let client = null;
-    let busy = false;
+        <button id="saveButton" type="submit">Add Task</button>
+        <button id="cancelEditButton" type="button"
+          class="secondary hidden">Cancel Edit</button>
+      </form>
+    </div>
 
-    function showStatus(message) {
-      statusEl.textContent = message;
+    <div class="card">
+      <h2>Manage Tasks</h2>
+      <button id="refreshButton" class="secondary">Refresh Tasks</button>
+      <div id="taskList"></div>
+    </div>
+  </div>
+
+  <div id="message" class="status" role="status" aria-live="polite"></div>
+</div>
+
+<script type="module">
+  import { createClient } from
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  // Use your existing Supabase project URL and publishable key.
+  const SUPABASE_URL =
+    "https://ywkgamyqgvcdavgodrio.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx";
+
+  const client = createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  const $ = (id) => document.getElementById(id);
+
+  let editingTaskId = null;
+  let busy = false;
+
+  function showMessage(message, isError = false) {
+    $("message").textContent = message;
+    $("message").style.color = isError ? "#dc2626" : "#15803d";
+  }
+
+  function setBusy(value) {
+    busy = value;
+    document.querySelectorAll("button").forEach((button) => {
+      button.disabled = value;
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  async function verifyAdmin() {
+    const { data: sessionData, error: sessionError } =
+      await client.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const session = sessionData.session;
+
+    if (!session) {
+      showDashboard(false);
+      return false;
     }
 
-    function showLogin() {
-      form.classList.remove("hidden");
-      dashboard.classList.add("hidden");
+    const { data, error } = await client.rpc("is_taskpay_admin");
+
+    if (error || data !== true) {
+      await client.auth.signOut();
+      showDashboard(false);
+      showMessage(
+        "Admin verification failed. Check the admin allowlist and database permissions.",
+        true
+      );
+      return false;
     }
 
-    function showDashboard() {
-      form.classList.add("hidden");
-      dashboard.classList.remove("hidden");
-    }
+    $("adminEmail").textContent =
+      "Signed in as: " + (session.user.email || "Authorized admin");
 
-    async function verifyAdmin(user) {
-      const { data, error } = await client.rpc(
-        "is_taskpay_admin"
+    showDashboard(true);
+    return true;
+  }
+
+  function showDashboard(isAdmin) {
+    $("loginCard").classList.toggle("hidden", isAdmin);
+    $("dashboard").classList.toggle("hidden", !isAdmin);
+  }
+
+  $("loginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (busy) return;
+
+    setBusy(true);
+    showMessage("Signing in...");
+
+    try {
+      const { error } = await client.auth.signInWithPassword({
+        email: $("email").value.trim(),
+        password: $("password").value
+      });
+
+      if (error) throw error;
+
+      const verified = await verifyAdmin();
+
+      if (verified) {
+        showMessage("Admin access verified.");
+        await loadTasks();
+      }
+    } catch (error) {
+      showMessage(error.message || "Login failed.", true);
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  $("logoutButton").addEventListener("click", async () => {
+    if (busy) return;
+    setBusy(true);
+
+    try {
+      const { error } = await client.auth.signOut();
+      if (error) throw error;
+
+      showDashboard(false);
+      $("taskList").replaceChildren();
+      resetTaskForm();
+      showMessage("Logged out.");
+    } catch (error) {
+      showMessage(error.message, true);
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  $("taskForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (busy) return;
+
+    setBusy(true);
+
+    try {
+      if (!(await verifyAdmin())) {
+        throw new Error("You are not authorized to manage tasks.");
+      }
+
+      const title = $("taskTitle").value.trim();
+      const description = $("taskDescription").value.trim();
+      const taskUrl = $("taskUrl").value.trim();
+      const reward = Number($("taskReward").value);
+
+      if (!title) throw new Error("Enter a task title.");
+      if (!Number.isFinite(reward) || reward < 0) {
+        throw new Error("Enter a valid reward amount.");
+      }
+
+      const parsedUrl = new URL(taskUrl);
+
+      if (!["https:", "http:"].includes(parsedUrl.protocol)) {
+        throw new Error("Task URL must start with http:// or https://.");
+      }
+
+      const taskData = {
+        title,
+        description,
+        task_url: taskUrl,
+        reward
+      };
+
+      let result;
+
+      if (editingTaskId !== null) {
+        result = await client
+          .from("taskpay_tasks")
+          .update(taskData)
+          .eq("id", editingTaskId);
+      } else {
+        result = await client
+          .from("taskpay_tasks")
+          .insert(taskData);
+      }
+
+      if (result.error) throw result.error;
+
+      showMessage(
+        editingTaskId !== null
+          ? "Task updated successfully."
+          : "Task added successfully."
       );
 
-      if (error) {
-        throw new Error(
-          "Could not verify admin permissions. Check the Supabase function."
-        );
+      resetTaskForm();
+      await loadTasks();
+    } catch (error) {
+      showMessage(error.message || "Could not save task.", true);
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  function resetTaskForm() {
+    editingTaskId = null;
+    $("taskForm").reset();
+    $("formHeading").textContent = "Add New Task";
+    $("saveButton").textContent = "Add Task";
+    $("cancelEditButton").classList.add("hidden");
+  }
+
+  $("cancelEditButton").addEventListener("click", resetTaskForm);
+
+  $("refreshButton").addEventListener("click", async () => {
+    if (busy) return;
+    setBusy(true);
+
+    try {
+      if (!(await verifyAdmin())) {
+        throw new Error("Admin access is required.");
       }
 
-      if (data !== true) {
-        await client.auth.signOut();
-        showLogin();
-        showStatus("Access denied: this account is not an admin.");
-        return false;
-      }
+      await loadTasks();
+      showMessage("Tasks refreshed.");
+    } catch (error) {
+      showMessage(error.message, true);
+    } finally {
+      setBusy(false);
+    }
+  });
 
-      showDashboard();
-      showStatus("Admin verified: " + user.email);
-      return true;
+  async function loadTasks() {
+    const { data, error } = await client
+      .from("taskpay_tasks")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    renderTasks(data || []);
+  }
+
+  function renderTasks(tasks) {
+    const list = $("taskList");
+    list.replaceChildren();
+
+    if (tasks.length === 0) {
+      list.textContent = "No tasks found. Add your first task above.";
+      return;
     }
 
-    async function start() {
-      if (
-        SUPABASE_URL === "YOUR_PROJECT_URL" ||
-        SUPABASE_PUBLISHABLE_KEY === "YOUR_PUBLISHABLE_KEY"
-      ) {
-        showStatus("Please add your Supabase URL and publishable key.");
-        return;
-      }
+    tasks.forEach((task) => {
+      const item = document.createElement("div");
+      item.className = "task";
 
-      if (!window.supabase) {
-        showStatus(
-          "Supabase library failed to load. Check your internet connection and reload."
-        );
-        return;
-      }
+      const title = document.createElement("h3");
+      title.textContent = task.title;
 
-      try {
-        client = window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_PUBLISHABLE_KEY
-        );
+      const description = document.createElement("p");
+      description.textContent = task.description || "No description";
 
-        const { data, error } = await client.auth.getSession();
+      const reward = document.createElement("p");
+      reward.textContent =
+        "Reward: $ " + Number(task.reward).toFixed(2);
 
-        if (error) throw error;
+      const status = document.createElement("p");
+      status.className =
+        "status " + (task.is_active ? "active" : "inactive");
+      status.textContent = task.is_active ? "Active" : "Inactive";
 
-        if (data.session) {
-          await verifyAdmin(data.session.user);
-        } else {
-          showLogin();
-          showStatus("Enter your administrator email and password.");
-        }
-      } catch (error) {
-        showLogin();
-        showStatus("Connection error: " + error.message);
-      }
-    }
+      const link = document.createElement("a");
+      link.href = task.task_url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "Open task link";
 
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
+      const editButton = document.createElement("button");
+      editButton.className = "small-button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => {
+        editingTaskId = task.id;
+        $("taskTitle").value = task.title;
+        $("taskDescription").value = task.description || "";
+        $("taskUrl").value = task.task_url;
+        $("taskReward").value = task.reward;
+        $("formHeading").textContent = "Edit Task";
+        $("saveButton").textContent = "Save Changes";
+        $("cancelEditButton").classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
 
-      if (busy) return;
+      const toggleButton = document.createElement("button");
+      toggleButton.className =
+        "small-button " + (task.is_active ? "secondary" : "success");
+      toggleButton.textContent =
+        task.is_active ? "Deactivate" : "Activate";
+      toggleButton.addEventListener("click", () => {
+        changeTaskStatus(task.id, !task.is_active);
+      });
 
-      if (!client) {
-        showStatus(
-          "Secure login is not ready. Check your internet and reload the page."
-        );
-        return;
-      }
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "small-button danger";
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", () => {
+        deleteTask(task.id, task.title);
+      });
 
-      busy = true;
-      loginBtn.disabled = true;
-      showStatus("Checking login and admin permissions...");
+      item.append(
+        title, description, reward, status, link,
+        document.createElement("br"),
+        editButton, toggleButton, deleteButton
+      );
 
-      try {
-        const { data, error } = await client.auth.signInWithPassword({
-          email: emailInput.value.trim(),
-          password: passwordInput.value
-        });
-
-        if (error) throw error;
-
-        await verifyAdmin(data.user);
-      } catch (error) {
-        showLogin();
-        showStatus("Login failed: " + error.message);
-      } finally {
-        busy = false;
-        loginBtn.disabled = false;
-      }
+      list.appendChild(item);
     });
+  }
 
-    document.getElementById("logoutBtn").addEventListener(
-      "click", async function() {
-        if (!client) return;
+  async function changeTaskStatus(id, isActive) {
+    if (busy) return;
 
-        const { error } = await client.auth.signOut();
-
-        showLogin();
-        showStatus(
-          error ? "Logout failed. Please try again." : "Logged out successfully."
-        );
-      }
+    const confirmed = window.confirm(
+      isActive ? "Activate this task?" : "Deactivate this task?"
     );
 
-    start();
-  </script>
+    if (!confirmed) return;
+
+    setBusy(true);
+
+    try {
+      if (!(await verifyAdmin())) {
+        throw new Error("Admin access is required.");
+      }
+
+      const { error } = await client
+        .from("taskpay_tasks")
+        .update({ is_active: isActive })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      await loadTasks();
+      showMessage("Task status updated.");
+    } catch (error) {
+      showMessage(error.message, true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteTask(id, title) {
+    if (busy) return;
+
+    if (!window.confirm(
+      'Delete "' + title + '" permanently? This cannot be undone.'
+    )) return;
+
+    setBusy(true);
+
+    try {
+      if (!(await verifyAdmin())) {
+        throw new Error("Admin access is required.");
+      }
+
+      const { error } = await client
+        .from("taskpay_tasks")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      await loadTasks();
+      showMessage("Task deleted.");
+    } catch (error) {
+      showMessage(error.message, true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  client.auth.onAuthStateChange(() => {
+    // Keep the session UI synchronized after auth changes.
+    // Verification is also performed before task-management actions.
+  });
+
+  try {
+    const verified = await verifyAdmin();
+    if (verified) {
+      await loadTasks();
+    }
+  } catch (error) {
+    showMessage(error.message || "Could not initialize admin panel.", true);
+  }
+</script>
 </body>
 </html>
