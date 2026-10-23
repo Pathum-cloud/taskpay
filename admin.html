@@ -5,8 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TaskPay Admin</title>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -17,6 +19,7 @@
       color: #f8fafc;
       font-family: Arial, sans-serif;
     }
+
     .panel {
       width: 100%;
       max-width: 420px;
@@ -24,7 +27,9 @@
       background: #1e293b;
       border-radius: 18px;
     }
+
     h1 { color: #34d399; margin-top: 0; }
+
     input, button {
       width: 100%;
       padding: 14px;
@@ -32,22 +37,27 @@
       border-radius: 9px;
       font-size: 16px;
     }
+
     input {
       color: white;
       background: #0f172a;
       border: 1px solid #475569;
     }
+
     button {
       border: 0;
       background: #10b981;
       color: #052e25;
       font-weight: bold;
+      cursor: pointer;
     }
+
     button:disabled { opacity: .5; }
     #status { overflow-wrap: anywhere; line-height: 1.5; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
   </style>
 </head>
+
 <body>
   <main class="panel">
     <h1>TaskPay Admin</h1>
@@ -55,9 +65,13 @@
 
     <form id="loginForm">
       <input id="email" type="email"
-        placeholder="Admin email" required autocomplete="username">
+        placeholder="Admin email"
+        required autocomplete="username">
+
       <input id="password" type="password"
-        placeholder="Password" required autocomplete="current-password">
+        placeholder="Password"
+        required autocomplete="current-password">
+
       <button id="loginBtn" type="submit">Login</button>
     </form>
 
@@ -68,19 +82,25 @@
       <button id="logoutBtn" type="button">Logout</button>
     </section>
 
-    <p id="status" role="status">Connecting...</p>
+    <p id="status" role="status">Connecting to secure login...</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-    // Replace these two placeholders with your own project details.
-    const SUPABASE_URL = "https://ywkgamyqgvcdavgodrio.supabase.co";
-    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx";
+    // Your TaskPay Supabase project settings
+    const SUPABASE_URL =
+      "https://ywkgamyqgvcdavgodrio.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx";
 
     const statusEl = document.getElementById("status");
     const form = document.getElementById("loginForm");
     const loginBtn = document.getElementById("loginBtn");
     const dashboard = document.getElementById("dashboard");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
 
     let client = null;
     let busy = false;
@@ -92,13 +112,11 @@
     function showLogin() {
       form.classList.remove("hidden");
       dashboard.classList.add("hidden");
-      loginBtn.disabled = false;
     }
 
     function showDashboard() {
       form.classList.add("hidden");
       dashboard.classList.remove("hidden");
-      loginBtn.disabled = false;
     }
 
     async function verifyAdmin(user) {
@@ -108,14 +126,14 @@
 
       if (error) {
         throw new Error(
-          "Admin verification failed. Check Supabase function permissions."
+          "Could not verify admin permissions. Check the Supabase function."
         );
       }
 
       if (data !== true) {
         await client.auth.signOut();
         showLogin();
-        showStatus("Access denied. This account is not an admin.");
+        showStatus("Access denied: this account is not an admin.");
         return false;
       }
 
@@ -126,42 +144,53 @@
 
     async function start() {
       if (
-        SUPABASE_URL === "https://ywkgamyqgvcdavgodrio.supabase.co" ||
-        SUPABASE_PUBLISHABLE_KEY === "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx"
+        SUPABASE_URL === "YOUR_PROJECT_URL" ||
+        SUPABASE_PUBLISHABLE_KEY === "YOUR_PUBLISHABLE_KEY"
       ) {
-        showStatus("Add your Supabase URL and publishable key in the code.");
+        showStatus("Please add your Supabase URL and publishable key.");
         return;
       }
 
       if (!window.supabase) {
-        showStatus("Supabase library failed to load. Check your internet.");
+        showStatus(
+          "Supabase library failed to load. Check your internet connection and reload."
+        );
         return;
       }
 
-      client = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-      );
-
       try {
+        client = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_PUBLISHABLE_KEY
+        );
+
         const { data, error } = await client.auth.getSession();
+
         if (error) throw error;
 
         if (data.session) {
           await verifyAdmin(data.session.user);
         } else {
           showLogin();
-          showStatus("Enter your administrator login.");
+          showStatus("Enter your administrator email and password.");
         }
       } catch (error) {
         showLogin();
-        showStatus(error.message);
+        showStatus("Connection error: " + error.message);
       }
     }
 
-    form.addEventListener("submit", async function (event) {
+    form.addEventListener("submit", async function(event) {
       event.preventDefault();
-      if (busy || !client) return;
+
+      if (busy) return;
+
+      if (!client) {
+        showStatus(
+          "Secure login is not ready. Check your internet and reload the page."
+        );
+        return;
+      }
 
       busy = true;
       loginBtn.disabled = true;
@@ -169,18 +198,16 @@
 
       try {
         const { data, error } = await client.auth.signInWithPassword({
-          email: document.getElementById("email").value.trim(),
-          password: document.getElementById("password").value
+          email: emailInput.value.trim(),
+          password: passwordInput.value
         });
 
         if (error) throw error;
 
-        const allowed = await verifyAdmin(data.user);
-
-        if (!allowed) return;
+        await verifyAdmin(data.user);
       } catch (error) {
         showLogin();
-        showStatus("Login failed or verification unavailable. Check your details and settings.");
+        showStatus("Login failed: " + error.message);
       } finally {
         busy = false;
         loginBtn.disabled = false;
@@ -188,10 +215,15 @@
     });
 
     document.getElementById("logoutBtn").addEventListener(
-      "click", async function () {
+      "click", async function() {
+        if (!client) return;
+
         const { error } = await client.auth.signOut();
+
         showLogin();
-        showStatus(error ? "Logout error. Please retry." : "Logged out.");
+        showStatus(
+          error ? "Logout failed. Please try again." : "Logged out successfully."
+        );
       }
     );
 
