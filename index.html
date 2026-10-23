@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10152b">
+  <title>TaskPay - Earn Rewards</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #10152b;
+      color: #fff;
+    }
+    .app {
+      max-width: 480px;
+      margin: auto;
+      min-height: 100vh;
+      padding: 22px 16px 35px;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+    .logo { font-size: 25px; font-weight: 800; }
+    .logo span { color: #39e6b0; }
+    .tag {
+      background: #202943;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #39e6b0;
+    }
+    .welcome { color: #aab4d0; font-size: 14px; }
+    h1 { font-size: 26px; margin: 8px 0 20px; }
+    .balance {
+      background: linear-gradient(135deg, #2868f5, #7545e8);
+      border-radius: 22px;
+      padding: 23px;
+      margin-bottom: 25px;
+      box-shadow: 0 12px 35px #0003;
+    }
+    .balance small { color: #e2e9ff; }
+    .amount { font-size: 38px; font-weight: 800; margin: 12px 0; }
+    .balance p { font-size: 12px; color: #e2e9ff; margin-bottom: 0; }
+    .section-title {
+      font-size: 18px;
+      margin: 24px 0 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+    }
+    .item {
+      background: #1a223d;
+      border: 1px solid #2b3554;
+      border-radius: 18px;
+      padding: 19px 15px;
+      min-height: 145px;
+    }
+    .emoji { font-size: 29px; }
+    .item h3 { margin: 13px 0 7px; font-size: 16px; }
+    .item p { color: #aab4d0; font-size: 12px; line-height: 1.5; }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 10px;
+      background: #39e6b0;
+      color: #10152b;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .notice {
+      margin-top: 23px;
+      padding: 15px;
+      background: #1a223d;
+      border-radius: 14px;
+      color: #aab4d0;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .bottom {
+      display: flex;
+      justify-content: space-around;
+      gap: 5px;
+      background: #1a223d;
+      border-radius: 16px;
+      padding: 15px 5px;
+      margin-top: 24px;
+      color: #b8c2dd;
+      font-size: 12px;
+    }
+    .bottom span { cursor: pointer; }
+    #message {
+      display: none;
+      background: #263653;
+      border: 1px solid #39e6b0;
+      padding: 13px;
+      border-radius: 12px;
+      margin-top: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="logo">Task<span>Pay</span></div>
+      <div class="tag">● Rewards App</div>
+    </header>
+
+    <p class="welcome">WELCOME TO TASKPAY</p>
+    <h1>Earn rewards daily 🚀</h1>
+
+    <section class="balance">
+      <small>💰 Your Demo Balance</small>
+      <div class="amount">$0.00</div>
+      <p>Complete available tasks to get started.</p>
+    </section>
+
+    <h2 class="section-title">Explore TaskPay</h2>
+
+    <section class="grid">
+      <article class="item">
+        <div class="emoji">📋</div>
+        <h3>Tasks</h3>
+        <p>Explore tasks and rewards.</p>
+        <button onclick="showMessage('Tasks are not connected yet. A secure backend is needed to load approved tasks.')">View Tasks</button>
+      </article>
+
+      <article class="item">
+        <div class="emoji">📺</div>
+        <h3>Watch Ads</h3>
+        <p>Ad rewards integration coming next.</p>
+        <button onclick="showMessage('Ads are not connected yet. AdsGram integration and reward verification are required.')">Watch Ads</button>
+      </article>
+
+      <article class="item">
+        <div class="emoji">👥</div>
+        <h3>Invite Friends</h3>
+        <p>Referral rewards feature.</p>
+        <button onclick="showMessage('Referral links will work after Telegram bot integration.')">Invite</button>
+      </article>
+
+      <article class="item">
+        <div class="emoji">💳</div>
+        <h3>Wallet</h3>
+        <p>Balance and withdrawal section.</p>
+        <button onclick="showMessage('Real balance and withdrawals require a secure database and payment verification.')">Open Wallet</button>
+      </article>
+    </section>
+
+    <div id="message"></div>
+
+    <div class="notice">
+      <strong>ℹ️ Important</strong><br>
+      This is the initial TaskPay interface demo. It does not pay real money or store user balances yet. Real tasks, AdsGram rewards, referrals and withdrawals must be connected securely before launch.
+    </div>
+
+    <nav class="bottom">
+      <span onclick="showMessage('You are on Home.')">🏠 Home</span>
+      <span onclick="showMessage('Tasks feature is coming next.')">📋 Tasks</span>
+      <span onclick="showMessage('Wallet feature is coming next.')">💰 Wallet</span>
+      <span onclick="showMessage('Profile feature is coming next.')">👤 Profile</span>
+    </nav>
+  </main>
+
+  <script>
+    function showMessage(message) {
+      const box = document.getElementById('message');
+      box.textContent = message;
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+</body>
+</html>
