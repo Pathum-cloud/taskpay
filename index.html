@@ -3,26 +3,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b1220">
-  <meta name="description" content="Discover available tasks on TaskPay.">
-  <meta name="robots" content="index,follow">
-  <title>TaskPay - Earn by Completing Tasks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>TaskPay | Earn Rewards</title>
 
   <style>
+    :root {
+      --orange: #ff8a24;
+      --orange-dark: #ed6b00;
+      --orange-light: #fff0df;
+      --blue: #3478f6;
+      --green: #119b62;
+      --text: #18233d;
+      --muted: #77849a;
+      --bg: #f7f9fd;
+      --border: #edf0f6;
+      --white: #ffffff;
+    }
+
     * {
       box-sizing: border-box;
     }
 
-    :root {
-      color-scheme: dark;
-      --bg: #0b1220;
-      --panel: #131e31;
-      --border: #263650;
-      --text: #f8fafc;
-      --muted: #9aabc2;
-      --primary: #3b82f6;
-      --green: #4ade80;
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -30,267 +34,541 @@
       background: var(--bg);
       color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
+      padding-bottom: 86px;
     }
 
-    a {
-      color: inherit;
+    button, input {
+      font: inherit;
     }
 
-    .header {
+    button, a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible, a:focus-visible {
+      outline: 3px solid #ffb36c;
+      outline-offset: 3px;
+    }
+
+    .topbar {
+      background: var(--white);
       border-bottom: 1px solid var(--border);
-      background: #0e1728;
-      position: sticky;
-      top: 0;
-      z-index: 5;
     }
 
-    .header-inner {
-      max-width: 1000px;
+    .topbar-inner {
+      max-width: 680px;
       margin: auto;
-      padding: 16px 18px;
+      padding: 18px 18px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
     }
 
     .brand {
-      font-size: 24px;
-      font-weight: 800;
+      font-size: 25px;
+      font-weight: 900;
       letter-spacing: -1px;
     }
 
-    .brand span {
-      color: var(--green);
+    .brand .task {
+      color: var(--text);
     }
 
-    .header-link {
-      color: #dbeafe;
-      text-decoration: none;
-      font-size: 14px;
+    .brand .pay {
+      color: var(--orange);
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .profile-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--orange-light);
+      color: var(--orange-dark);
+      font-size: 22px;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 680px;
       margin: auto;
-      padding: 20px 16px 50px;
+      padding: 18px;
     }
 
-    .hero {
-      padding: 38px 22px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: linear-gradient(135deg, #172b49, #111827);
-      margin: 12px 0 30px;
+    .balance-card {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+      border-radius: 23px;
+      color: white;
+      background: linear-gradient(125deg, #ff9c42, #ff7620);
+      box-shadow: 0 9px 24px #ff8a2426;
     }
 
-    .eyebrow {
-      color: var(--green);
-      font-size: 13px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
+    .balance-card::after {
+      content: "💰";
+      position: absolute;
+      right: 18px;
+      bottom: 12px;
+      font-size: 64px;
+      opacity: .28;
+      transform: rotate(-10deg);
     }
 
-    .hero h1 {
-      font-size: clamp(30px, 6vw, 48px);
-      line-height: 1.12;
-      margin: 14px 0;
+    .balance-label {
+      font-size: 14px;
+      margin: 0 0 8px;
     }
 
-    .hero p {
-      max-width: 550px;
-      color: #cbd5e1;
-      line-height: 1.7;
-    }
-
-    .section-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .section-heading h2 {
+    .balance-amount {
+      font-size: 36px;
+      font-weight: 900;
       margin: 0;
-      font-size: 24px;
+      letter-spacing: -1px;
     }
 
-    .count {
-      color: var(--muted);
+    .balance-subtitle {
       font-size: 13px;
+      margin: 10px 0 0;
+      opacity: .92;
     }
 
-    .task-grid {
+    .section-title {
+      font-size: 20px;
+      margin: 28px 0 14px;
+    }
+
+    .menu-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 13px;
+    }
+
+    .menu-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 19px;
+      padding: 17px 15px;
+      text-align: left;
+      min-height: 145px;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 4px 15px #18233d05;
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .menu-card:active {
+      transform: scale(.98);
+    }
+
+    .menu-icon {
+      width: 51px;
+      height: 51px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      margin-bottom: 14px;
+    }
+
+    .icon-orange { background: #fff0df; }
+    .icon-blue { background: #eaf1ff; }
+    .icon-purple { background: #f1eaff; }
+    .icon-green { background: #e0faed; }
+
+    .menu-card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .menu-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .welcome-card {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+      padding: 17px;
+      margin-top: 20px;
+      border: 1px solid #ffe1c1;
+      border-radius: 17px;
+      background: #fffaf5;
+    }
+
+    .welcome-icon {
+      font-size: 25px;
+      background: #ffeddc;
+      border-radius: 13px;
+      padding: 11px;
+    }
+
+    .welcome-card h3 {
+      font-size: 15px;
+      margin: 1px 0 7px;
+    }
+
+    .welcome-card p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .tasks-section {
+      margin-top: 24px;
+      scroll-margin-top: 20px;
+    }
+
+    .tasks-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .tasks-heading h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .task-count {
+      font-size: 12px;
+      color: var(--orange-dark);
+      background: var(--orange-light);
+      padding: 7px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
     }
 
     .task-card {
+      background: var(--white);
       border: 1px solid var(--border);
-      background: var(--panel);
-      padding: 19px;
-      border-radius: 15px;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 3px 12px #18233d04;
+      overflow-wrap: anywhere;
     }
 
     .task-card h3 {
-      font-size: 19px;
-      margin: 0 0 10px;
-      overflow-wrap: anywhere;
+      font-size: 16px;
+      margin: 0 0 8px;
     }
 
     .task-description {
-      color: #bac8da;
-      line-height: 1.65;
-      font-size: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
       white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      flex: 1;
+      margin: 0;
     }
 
-    .reward {
+    .task-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .task-reward {
       color: var(--green);
-      font-size: 21px;
-      font-weight: bold;
-      margin: 16px 0;
-    }
-
-    .open-task {
-      display: block;
-      text-align: center;
-      padding: 13px 16px;
-      border-radius: 9px;
-      background: var(--primary);
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-    }
-
-    .open-task:active {
-      transform: scale(0.98);
-    }
-
-    .state-box {
-      border: 1px dashed #3a4b66;
-      border-radius: 14px;
-      padding: 26px 18px;
-      text-align: center;
-      color: var(--muted);
-      line-height: 1.7;
-      grid-column: 1 / -1;
-    }
-
-    .retry-button {
-      border: 0;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .info-panel {
-      background: #101a2b;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      margin-top: 28px;
-    }
-
-    .info-panel h3 {
-      margin-top: 0;
-    }
-
-    .info-panel p {
-      color: var(--muted);
-      line-height: 1.7;
+      background: #e2faee;
+      font-weight: 800;
       font-size: 14px;
+      padding: 9px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
     }
 
-    .footer {
-      border-top: 1px solid var(--border);
+    .task-link {
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+      color: white;
+      background: var(--orange);
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .task-link:active {
+      background: var(--orange-dark);
+    }
+
+    .message-box {
+      background: white;
+      border: 1px dashed #e2e7ef;
+      border-radius: 14px;
       padding: 22px 16px;
       text-align: center;
       color: var(--muted);
       font-size: 13px;
+      line-height: 1.6;
     }
 
-    @media (max-width: 620px) {
-      .task-grid {
-        grid-template-columns: 1fr;
-      }
+    .retry-button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 16px;
+      margin-top: 10px;
+      color: white;
+      background: var(--orange);
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-      .hero {
-        padding: 28px 18px;
-      }
+    .feature-panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-top: 18px;
+    }
 
-      .header-inner {
-        padding: 14px 16px;
-      }
+    .feature-panel h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .feature-panel p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .back-button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 13px;
+      background: var(--orange-light);
+      color: var(--orange-dark);
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 17px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 10;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffffed;
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 9px 5px max(9px, env(safe-area-inset-bottom));
+    }
+
+    .nav-inner {
+      max-width: 600px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 2px;
+    }
+
+    .nav-button {
+      background: transparent;
+      border: 0;
+      color: #8793a8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 0;
+      cursor: pointer;
+      font-size: 11px;
+      min-width: 0;
+    }
+
+    .nav-button .nav-icon {
+      font-size: 22px;
+    }
+
+    .nav-button.active {
+      color: var(--orange-dark);
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 26px 12px 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (min-width: 560px) {
+      .menu-card { min-height: 155px; padding: 20px; }
+      .task-card { padding: 19px; }
+    }
+
+    @media (max-width: 350px) {
+      .container { padding: 12px; }
+      .balance-card { padding: 20px; }
+      .balance-amount { font-size: 31px; }
+      .menu-card { padding: 14px 10px; }
+      .task-bottom { align-items: flex-start; flex-direction: column; }
     }
   </style>
 </head>
 
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <div class="brand">Task<span>Pay</span></div>
-      <a class="header-link" href="#tasks">Available Tasks ↓</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="brand">
+          <span class="task">💎 Task</span><span class="pay">Pay</span>
+        </div>
+        <div class="tagline">Complete Tasks. Earn Rewards.</div>
+      </div>
+      <div class="profile-icon" aria-label="Profile">👤</div>
     </div>
   </header>
 
   <main class="container">
-    <section class="hero">
-      <div class="eyebrow">Welcome to TaskPay</div>
-      <h1>Complete Tasks.<br>Discover Opportunities.</h1>
-      <p>
-        Explore the available tasks below. Open a task to view its
-        requirements and follow the instructions provided.
-      </p>
-      <a class="open-task" href="#tasks" style="display:inline-block">
-        Explore Tasks
-      </a>
-    </section>
 
-    <section id="tasks">
-      <div class="section-heading">
-        <h2>Available Tasks</h2>
-        <span class="count" id="task-count">Loading...</span>
+    <section id="home-page">
+      <div class="balance-card">
+        <p class="balance-label">Your Balance (Demo)</p>
+        <h1 class="balance-amount">$0.00</h1>
+        <p class="balance-subtitle">Welcome to TaskPay! 👋</p>
       </div>
 
-      <div id="task-list" class="task-grid" aria-live="polite">
-        <div class="state-box">Loading available tasks...</div>
-      </div>
+      <h2 class="section-title">Explore TaskPay</h2>
+
+      <section class="menu-grid">
+        <button class="menu-card" data-page="tasks">
+          <div class="menu-icon icon-orange">📋</div>
+          <h3>Tasks</h3>
+          <p>Complete available tasks</p>
+        </button>
+
+        <button class="menu-card" data-page="ads">
+          <div class="menu-icon icon-purple">📺</div>
+          <h3>Watch Ads</h3>
+          <p>View available advertisements</p>
+        </button>
+
+        <button class="menu-card" data-page="invite">
+          <div class="menu-icon icon-green">👥</div>
+          <h3>Invite Friends</h3>
+          <p>Referral rewards</p>
+        </button>
+
+        <button class="menu-card" data-page="wallet">
+          <div class="menu-icon icon-blue">💰</div>
+          <h3>Wallet</h3>
+          <p>Balance and withdrawals</p>
+        </button>
+      </section>
+
+      <section class="welcome-card">
+        <div class="welcome-icon">📢</div>
+        <div>
+          <h3>Welcome to TaskPay</h3>
+          <p>
+            Browse available tasks below. Your balance is currently
+            a demo display. Real earnings and withdrawals are not
+            connected yet.
+          </p>
+        </div>
+      </section>
+
+      <section class="tasks-section" id="available-tasks">
+        <div class="tasks-heading">
+          <h2>📋 Available Tasks</h2>
+          <span class="task-count" id="task-count">Loading...</span>
+        </div>
+        <div id="task-list" class="task-list" aria-live="polite">
+          <div class="message-box">Loading tasks...</div>
+        </div>
+        <button id="retry-button" class="retry-button hidden">
+          Try Again
+        </button>
+      </section>
     </section>
 
-    <section class="info-panel">
-      <h3>How it works</h3>
+    <section id="ads-page" class="feature-panel hidden">
+      <button class="back-button" data-home>← Home</button>
+      <h2>📺 Watch Ads</h2>
       <p>
-        1. Choose an available task.<br>
-        2. Read the task instructions carefully.<br>
-        3. Open the task and complete the required steps.<br>
-        4. Follow the platform's official process for any reward or
-        completion confirmation.
-      </p>
-      <p>
-        Task availability and rewards depend on the information
-        supplied by the administrator. Displayed rewards are not
-        a guarantee of payment.
+        The advertising provider is not connected yet.
+        Ads and reward verification must be configured before
+        this section can issue real rewards.
       </p>
     </section>
+
+    <section id="invite-page" class="feature-panel hidden">
+      <button class="back-button" data-home>← Home</button>
+      <h2>👥 Invite Friends</h2>
+      <p>
+        Referral tracking is not connected yet. A Telegram bot
+        username and a secure referral backend are required to
+        generate and verify referral rewards.
+      </p>
+    </section>
+
+    <section id="wallet-page" class="feature-panel hidden">
+      <button class="back-button" data-home>← Home</button>
+      <h2>💰 My Wallet</h2>
+      <p><strong>Demo balance: $0.00</strong></p>
+      <p>
+        Real earnings and withdrawals are not enabled.
+        Do not treat the displayed demo balance as payable money.
+      </p>
+    </section>
+
+    <div class="footer">
+      © <span id="year"></span> TaskPay. All rights reserved.
+    </div>
   </main>
 
-  <footer class="footer">
-    © <span id="year"></span> TaskPay. All rights reserved.
-  </footer>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <div class="nav-inner">
+      <button class="nav-button active" data-nav="home">
+        <span class="nav-icon">⌂</span>
+        <span>Home</span>
+      </button>
+      <button class="nav-button" data-nav="tasks">
+        <span class="nav-icon">▤</span>
+        <span>Tasks</span>
+      </button>
+      <button class="nav-button" data-nav="ads">
+        <span class="nav-icon">▣</span>
+        <span>Ads</span>
+      </button>
+      <button class="nav-button" data-nav="invite">
+        <span class="nav-icon">♧</span>
+        <span>Invite</span>
+      </button>
+      <button class="nav-button" data-nav="wallet">
+        <span class="nav-icon">▣</span>
+        <span>Wallet</span>
+      </button>
+    </div>
+  </nav>
 
   <script type="module">
     import { createClient } from
@@ -302,39 +580,68 @@
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx";
 
-    const supabase = createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
     const taskList = document.getElementById("task-list");
     const taskCount = document.getElementById("task-count");
+    const retryButton = document.getElementById("retry-button");
 
     document.getElementById("year").textContent =
       new Date().getFullYear();
 
-    function showState(message, withRetry = false) {
+    let supabase = null;
+    let loading = false;
+    let currentPage = "home";
+
+    function showMessage(message) {
       taskList.replaceChildren();
-
       const box = document.createElement("div");
-      box.className = "state-box";
-
-      const text = document.createElement("p");
-      text.textContent = message;
-      box.appendChild(text);
-
-      if (withRetry) {
-        const button = document.createElement("button");
-        button.className = "retry-button";
-        button.textContent = "Try Again";
-        button.addEventListener("click", loadTasks);
-        box.appendChild(button);
-      }
-
+      box.className = "message-box";
+      box.textContent = message;
       taskList.appendChild(box);
     }
 
-    function createTaskCard(task) {
+    function showPage(page) {
+      currentPage = page;
+
+      const pages = {
+        home: document.getElementById("home-page"),
+        tasks: document.getElementById("home-page"),
+        ads: document.getElementById("ads-page"),
+        invite: document.getElementById("invite-page"),
+        wallet: document.getElementById("wallet-page")
+      };
+
+      Object.entries(pages).forEach(([name, element]) => {
+        element.classList.toggle("hidden", name !== page &&
+          !(page === "tasks" && name === "home"));
+      });
+
+      // Tasks navigation also scrolls to the task list.
+      if (page === "tasks") {
+        document.getElementById("available-tasks")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+        loadTasks();
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      document.querySelectorAll("[data-nav]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.nav === page);
+      });
+    }
+
+    document.querySelectorAll("[data-page]").forEach((button) => {
+      button.addEventListener("click", () => showPage(button.dataset.page));
+    });
+
+    document.querySelectorAll("[data-nav]").forEach((button) => {
+      button.addEventListener("click", () => showPage(button.dataset.nav));
+    });
+
+    document.querySelectorAll("[data-home]").forEach((button) => {
+      button.addEventListener("click", () => showPage("home"));
+    });
+
+    function makeTaskCard(task) {
       const card = document.createElement("article");
       card.className = "task-card";
 
@@ -344,66 +651,89 @@
       const description = document.createElement("p");
       description.className = "task-description";
       description.textContent =
-        task.description || "Open the task to see more details.";
+        task.description || "Open this task to view more details.";
 
-      const reward = document.createElement("div");
-      reward.className = "reward";
-      reward.textContent =
-        "$ " + Number(task.reward).toFixed(2);
+      const bottom = document.createElement("div");
+      bottom.className = "task-bottom";
 
-      const button = document.createElement("a");
-      button.className = "open-task";
-      button.textContent = "Open Task";
-      button.href = task.task_url;
-      button.target = "_blank";
-      button.rel = "noopener noreferrer";
+      const reward = document.createElement("span");
+      reward.className = "task-reward";
+      reward.textContent = "$ " + Number(task.reward).toFixed(2);
 
-      card.append(title, description, reward, button);
+      const link = document.createElement("a");
+      link.className = "task-link";
+      link.textContent = "Open Task →";
+      link.href = task.task_url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      bottom.append(reward, link);
+      card.append(title, description, bottom);
+
       return card;
     }
 
     async function loadTasks() {
-      showState("Loading available tasks...");
+      if (loading) return;
+      loading = true;
+
+      retryButton.classList.add("hidden");
       taskCount.textContent = "Loading...";
+      showMessage("Loading available tasks...");
 
       try {
+        if (
+          !SUPABASE_PUBLISHABLE_KEY ||
+          SUPABASE_PUBLISHABLE_KEY.includes("sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx")
+        ) {
+          throw new Error("Supabase publishable key is missing.");
+        }
+
+        if (!supabase) {
+          supabase = createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+          );
+        }
+
         const { data, error } = await supabase
           .from("taskpay_tasks")
           .select("id,title,description,task_url,reward,created_at")
           .eq("is_active", true)
           .order("created_at", { ascending: false });
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
         taskList.replaceChildren();
 
         if (!data || data.length === 0) {
           taskCount.textContent = "0 tasks";
-          showState(
-            "No active tasks are available right now. Please check again later."
-          );
+          showMessage("No active tasks available right now.");
           return;
         }
 
         data.forEach((task) => {
-          taskList.appendChild(createTaskCard(task));
+          taskList.appendChild(makeTaskCard(task));
         });
 
         taskCount.textContent =
           data.length + (data.length === 1 ? " task" : " tasks");
-      } catch (error) {
-        console.error("Unable to load TaskPay tasks:", error);
 
+      } catch (error) {
+        console.error("TaskPay error:", error);
         taskCount.textContent = "Unavailable";
-        showState(
-          "Tasks could not be loaded. Please try again later.",
-          true
+        showMessage(
+          "Could not load tasks. Check the Supabase key, internet connection and database permissions."
         );
+        retryButton.classList.remove("hidden");
+      } finally {
+        loading = false;
       }
     }
 
+    retryButton.addEventListener("click", loadTasks);
+
+    // Load task list on initial page visit.
     loadTasks();
   </script>
 </body>
