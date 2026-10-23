@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskPay Admin</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
+      display: grid;
+      place-items: center;
+      background: #101827;
+      color: #f8fafc;
+      font-family: Arial, sans-serif;
+    }
+    .panel {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px;
+      background: #1e293b;
+      border-radius: 18px;
+    }
+    h1 { color: #34d399; margin-top: 0; }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+    input {
+      color: white;
+      background: #0f172a;
+      border: 1px solid #475569;
+    }
+    button {
+      border: 0;
+      background: #10b981;
+      color: #052e25;
+      font-weight: bold;
+    }
+    button:disabled { opacity: .5; }
+    #status { overflow-wrap: anywhere; line-height: 1.5; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <h1>TaskPay Admin</h1>
+    <p>Secure administrator login</p>
+
+    <form id="loginForm">
+      <input id="email" type="email"
+        placeholder="Admin email" required autocomplete="username">
+      <input id="password" type="password"
+        placeholder="Password" required autocomplete="current-password">
+      <button id="loginBtn" type="submit">Login</button>
+    </form>
+
+    <section id="dashboard" class="hidden">
+      <h2>Admin Access Verified</h2>
+      <p>You are signed in as an authorized administrator.</p>
+      <p>Task management will be added next.</p>
+      <button id="logoutBtn" type="button">Logout</button>
+    </section>
+
+    <p id="status" role="status">Connecting...</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Replace these two placeholders with your own project details.
+    const SUPABASE_URL = "https://ywkgamyqgvcdavgodrio.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx";
+
+    const statusEl = document.getElementById("status");
+    const form = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const dashboard = document.getElementById("dashboard");
+
+    let client = null;
+    let busy = false;
+
+    function showStatus(message) {
+      statusEl.textContent = message;
+    }
+
+    function showLogin() {
+      form.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+      loginBtn.disabled = false;
+    }
+
+    function showDashboard() {
+      form.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+      loginBtn.disabled = false;
+    }
+
+    async function verifyAdmin(user) {
+      const { data, error } = await client.rpc(
+        "is_taskpay_admin"
+      );
+
+      if (error) {
+        throw new Error(
+          "Admin verification failed. Check Supabase function permissions."
+        );
+      }
+
+      if (data !== true) {
+        await client.auth.signOut();
+        showLogin();
+        showStatus("Access denied. This account is not an admin.");
+        return false;
+      }
+
+      showDashboard();
+      showStatus("Admin verified: " + user.email);
+      return true;
+    }
+
+    async function start() {
+      if (
+        SUPABASE_URL === "https://ywkgamyqgvcdavgodrio.supabase.co" ||
+        SUPABASE_PUBLISHABLE_KEY === "sb_publishable_re5j7hCcARPhvl7eqYVLKA_EUvUGWjx"
+      ) {
+        showStatus("Add your Supabase URL and publishable key in the code.");
+        return;
+      }
+
+      if (!window.supabase) {
+        showStatus("Supabase library failed to load. Check your internet.");
+        return;
+      }
+
+      client = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+      try {
+        const { data, error } = await client.auth.getSession();
+        if (error) throw error;
+
+        if (data.session) {
+          await verifyAdmin(data.session.user);
+        } else {
+          showLogin();
+          showStatus("Enter your administrator login.");
+        }
+      } catch (error) {
+        showLogin();
+        showStatus(error.message);
+      }
+    }
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      if (busy || !client) return;
+
+      busy = true;
+      loginBtn.disabled = true;
+      showStatus("Checking login and admin permissions...");
+
+      try {
+        const { data, error } = await client.auth.signInWithPassword({
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("password").value
+        });
+
+        if (error) throw error;
+
+        const allowed = await verifyAdmin(data.user);
+
+        if (!allowed) return;
+      } catch (error) {
+        showLogin();
+        showStatus("Login failed or verification unavailable. Check your details and settings.");
+      } finally {
+        busy = false;
+        loginBtn.disabled = false;
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener(
+      "click", async function () {
+        const { error } = await client.auth.signOut();
+        showLogin();
+        showStatus(error ? "Logout error. Please retry." : "Logged out.");
+      }
+    );
+
+    start();
+  </script>
+</body>
+</html>
